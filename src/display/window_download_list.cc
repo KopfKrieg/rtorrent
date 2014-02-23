@@ -37,6 +37,7 @@
 #include "config.h"
 
 #include <rak/algorithm.h>
+#include <torrent/rate.h>
 
 #include "core/download.h"
 #include "core/view.h"
@@ -105,8 +106,22 @@ WindowDownloadList::redraw() {
     char* last = buffer + m_canvas->width() - 2 + 1;
 
     print_download_title(buffer, last, *range.first);
-    m_canvas->print(0, pos++, "%c %s", range.first == m_view->focus() ? '*' : ' ', buffer);
-    
+    m_canvas->print(0, pos, "%c %s", range.first == m_view->focus() ? '*' : ' ', buffer);
+    if( (*range.first)->is_done() ) {
+      if( (*range.first)->download()->info()->up_rate()->rate() != 0 ) {
+        m_canvas->set_attr(0, pos, m_canvas->width()-1, A_BOLD, 2);
+      } else {
+        m_canvas->set_attr(0, pos, m_canvas->width()-1, A_NORMAL, 2);
+      }
+    } else if( (*range.first)->is_active() ) {
+      if( (*range.first)->download()->info()->down_rate()->rate() != 0 ) {
+        m_canvas->set_attr(0, pos, m_canvas->width()-1, A_BOLD, 1);
+      } else {
+        m_canvas->set_attr(0, pos, m_canvas->width()-1, A_NORMAL, 1);
+      }
+    }
+    pos++;
+
     print_download_info(buffer, last, *range.first);
     m_canvas->print(0, pos++, "%c %s", range.first == m_view->focus() ? '*' : ' ', buffer);
 
@@ -114,7 +129,43 @@ WindowDownloadList::redraw() {
     m_canvas->print(0, pos++, "%c %s", range.first == m_view->focus() ? '*' : ' ', buffer);
 
     ++range.first;
-  }    
+  }
+}
+
+void
+WindowDownloadList::set_done_fg_color(int64_t color) {
+  short fg, bg;
+  pair_content(2, &fg, &bg);
+  if( color < 0 ) color = -1;
+  color = color % 8;
+  init_pair(2, (short)color, bg);
+}
+
+void
+WindowDownloadList::set_done_bg_color(int64_t color) {
+  short fg, bg;
+  pair_content(2, &fg, &bg);
+  if( color < 0 ) color = -1;
+  color = color % 8;
+  init_pair(2, fg, (short)color);
+}
+
+void
+WindowDownloadList::set_active_fg_color(int64_t color) {
+  short fg, bg;
+  pair_content(1, &fg, &bg);
+  if( color < 0 ) color = -1;
+  color = color % 8;
+  init_pair(1, (short)color, bg);
+}
+
+void
+WindowDownloadList::set_active_bg_color(int64_t color) {
+  short fg, bg;
+  pair_content(1, &fg, &bg);
+  if( color < 0 ) color = -1;
+  color = color % 8;
+  init_pair(1, fg, (short)color);
 }
 
 }

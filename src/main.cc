@@ -388,6 +388,11 @@ main(int argc, char** argv) {
     CMD2_REDIRECT        ("ip",         "network.local_address.set");
     CMD2_REDIRECT        ("port_range", "network.port_range.set");
 
+    CMD2_REDIRECT       ("done_fg_color", "colors.done_fg_color.set");
+    CMD2_REDIRECT       ("done_bg_color", "colors.done_bg_color.set");
+    CMD2_REDIRECT       ("active_fg_color", "colors.active_fg_color.set");
+    CMD2_REDIRECT       ("active_bg_color", "colors.active_bg_color.set");
+
     CMD2_REDIRECT_GENERIC("dht",      "dht.mode.set");
     CMD2_REDIRECT_GENERIC("dht_port", "dht.port.set");
 

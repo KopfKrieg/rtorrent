@@ -55,6 +55,11 @@ public:
 
   void                set_view(core::View* l);
 
+  void                set_done_fg_color(int64_t color);
+  void                set_done_bg_color(int64_t color);
+  void                set_active_fg_color(int64_t color);
+  void                set_active_bg_color(int64_t color);
+
 private:
   core::View*         m_view;
 

@@ -44,6 +44,7 @@
 
 #include "core/manager.h"
 #include "display/frame.h"
+#include "display/window_download_list.h"
 #include "display/window_http_queue.h"
 #include "display/window_title.h"
 #include "display/window_input.h"
@@ -65,7 +66,11 @@ Root::Root() :
   m_windowTitle(NULL),
   m_windowHttpQueue(NULL),
   m_windowInput(NULL),
-  m_windowStatusbar(NULL) {
+  m_windowStatusbar(NULL),
+  done_fg_color(-1),
+  done_bg_color(-1),
+  active_fg_color(-1),
+  active_bg_color(-1) {
 }
 
 void
@@ -97,6 +102,10 @@ Root::init(Control* c) {
   setup_keys();
 
   m_downloadList->activate(rootFrame->frame(1));
+  m_downloadList->current_window_list()->set_done_fg_color(done_fg_color);
+  m_downloadList->current_window_list()->set_done_bg_color(done_bg_color);
+  m_downloadList->current_window_list()->set_active_fg_color(active_fg_color);
+  m_downloadList->current_window_list()->set_active_bg_color(active_bg_color);
 }
 
 void
@@ -270,6 +279,46 @@ Root::disable_input() {
 input::TextInput*
 Root::current_input() {
   return m_windowInput->input();
+}
+
+int
+Root::get_done_fg_color() {
+  return done_fg_color;
+}
+
+void
+Root::set_done_fg_color(int64_t color) {
+  done_fg_color = color;
+}
+
+int
+Root::get_done_bg_color() {
+  return done_bg_color;
+}
+
+void
+Root::set_done_bg_color(int64_t color) {
+  done_bg_color = color;
+}
+
+int
+Root::get_active_fg_color() {
+  return active_fg_color;
+}
+
+void
+Root::set_active_fg_color(int64_t color) {
+  active_fg_color = color;
+}
+
+int
+Root::get_active_bg_color() {
+  return active_bg_color;
+}
+
+void
+Root::set_active_bg_color(int64_t color) {
+  active_bg_color = color;
 }
 
 }

@@ -239,6 +239,15 @@ initialize_command_network() {
   CMD2_ANY         ("strings.connection_type", tr1::bind(&torrent::option_list_strings, torrent::OPTION_CONNECTION_TYPE));
   CMD2_ANY         ("strings.encryption",      tr1::bind(&torrent::option_list_strings, torrent::OPTION_ENCRYPTION));
 
+  CMD2_ANY         ("colors.done_fg_color",       tr1::bind(&ui::Root::get_done_fg_color,   control->ui()));
+  CMD2_ANY_VALUE_V ("colors.done_fg_color.set",   tr1::bind(&ui::Root::set_done_fg_color,   control->ui(), tr1::placeholders::_2));
+  CMD2_ANY         ("colors.done_bg_color",       tr1::bind(&ui::Root::get_done_bg_color,   control->ui()));
+  CMD2_ANY_VALUE_V ("colors.done_bg_color.set",   tr1::bind(&ui::Root::set_done_bg_color,   control->ui(), tr1::placeholders::_2));
+  CMD2_ANY         ("colors.active_fg_color",     tr1::bind(&ui::Root::get_active_fg_color, control->ui()));
+  CMD2_ANY_VALUE_V ("colors.active_fg_color.set", tr1::bind(&ui::Root::set_active_fg_color, control->ui(), tr1::placeholders::_2));
+  CMD2_ANY         ("colors.active_bg_color",     tr1::bind(&ui::Root::get_active_bg_color, control->ui()));
+  CMD2_ANY_VALUE_V ("colors.active_bg_color.set", tr1::bind(&ui::Root::set_active_bg_color, control->ui(), tr1::placeholders::_2));
+
   // CMD2_ANY_STRING  ("encoding_list",    tr1::bind(&apply_encoding_list, tr1::placeholders::_2));
   CMD2_ANY_STRING  ("encoding.add", tr1::bind(&apply_encoding_list, tr1::placeholders::_2));
 
