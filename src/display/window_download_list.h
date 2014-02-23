@@ -55,10 +55,14 @@ public:
 
   void                set_view(core::View* l);
 
-  void                set_done_fg_color(int64_t color);
-  void                set_done_bg_color(int64_t color);
-  void                set_active_fg_color(int64_t color);
-  void                set_active_bg_color(int64_t color);
+  void                set_color_inactive_fg(int64_t color);
+  void                set_color_inactive_bg(int64_t color);
+  void                set_color_dead_fg(int64_t color);
+  void                set_color_dead_bg(int64_t color);
+  void                set_color_active_fg(int64_t color);
+  void                set_color_active_bg(int64_t color);
+  void                set_color_finished_fg(int64_t color);
+  void                set_color_finished_bg(int64_t color);
 
 private:
   core::View*         m_view;

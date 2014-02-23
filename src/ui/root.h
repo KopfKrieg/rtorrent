@@ -83,14 +83,22 @@ public:
   void                set_down_throttle_i64(int64_t throttle) { set_down_throttle(throttle >> 10); }
   void                set_up_throttle_i64(int64_t throttle)   { set_up_throttle(throttle >> 10); }
 
-  int                 get_done_fg_color();
-  void                set_done_fg_color(int64_t color);
-  int                 get_done_bg_color();
-  void                set_done_bg_color(int64_t color);
-  int                 get_active_fg_color();
-  void                set_active_fg_color(int64_t color);
-  int                 get_active_bg_color();
-  void                set_active_bg_color(int64_t color);
+  int                 get_color_inactive_fg();
+  void                set_color_inactive_fg(int64_t color);
+  int                 get_color_inactive_bg();
+  void                set_color_inactive_bg(int64_t color);
+  int                 get_color_dead_fg();
+  void                set_color_dead_fg(int64_t color);
+  int                 get_color_dead_bg();
+  void                set_color_dead_bg(int64_t color);
+  int                 get_color_active_fg();
+  void                set_color_active_fg(int64_t color);
+  int                 get_color_active_bg();
+  void                set_color_active_bg(int64_t color);
+  int                 get_color_finished_fg();
+  void                set_color_finished_fg(int64_t color);
+  int                 get_color_finished_bg();
+  void                set_color_finished_bg(int64_t color);
 
   void                adjust_down_throttle(int throttle);
   void                adjust_up_throttle(int throttle);
@@ -115,10 +123,14 @@ private:
 
   input::Bindings     m_bindings;
 
-  int64_t             done_fg_color;
-  int64_t             done_bg_color;
-  int64_t             active_fg_color;
-  int64_t             active_bg_color;
+  int64_t             color_inactive_fg;
+  int64_t             color_inactive_bg;
+  int64_t             color_dead_fg;
+  int64_t             color_dead_bg;
+  int64_t             color_active_fg;
+  int64_t             color_active_bg;
+  int64_t             color_finished_fg;
+  int64_t             color_finished_bg;
 };
 
 }

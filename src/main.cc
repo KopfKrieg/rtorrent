@@ -388,10 +388,14 @@ main(int argc, char** argv) {
     CMD2_REDIRECT        ("ip",         "network.local_address.set");
     CMD2_REDIRECT        ("port_range", "network.port_range.set");
 
-    CMD2_REDIRECT       ("done_fg_color", "colors.done_fg_color.set");
-    CMD2_REDIRECT       ("done_bg_color", "colors.done_bg_color.set");
-    CMD2_REDIRECT       ("active_fg_color", "colors.active_fg_color.set");
-    CMD2_REDIRECT       ("active_bg_color", "colors.active_bg_color.set");
+    CMD2_REDIRECT       ("color_inactive_fg", "colors.color_inactive_fg.set");
+    CMD2_REDIRECT       ("color_inactive_bg", "colors.color_inactive_bg.set");
+    CMD2_REDIRECT       ("color_dead_fg",     "colors.color_dead_fg.set");
+    CMD2_REDIRECT       ("color_dead_bg",     "colors.color_dead_bg.set");
+    CMD2_REDIRECT       ("color_active_fg",   "colors.color_active_fg.set");
+    CMD2_REDIRECT       ("color_active_bg",   "colors.color_active_bg.set");
+    CMD2_REDIRECT       ("color_finished_fg", "colors.color_finished_fg.set");
+    CMD2_REDIRECT       ("color_finished_bg", "colors.color_finished_bg.set");
 
     CMD2_REDIRECT_GENERIC("dht",      "dht.mode.set");
     CMD2_REDIRECT_GENERIC("dht_port", "dht.port.set");
