@@ -116,12 +116,24 @@ WindowDownloadList::redraw() {
     print_download_title(buffer, last, *range.first);
     m_canvas->print(0, pos, "%c %s", range.first == m_view->focus() ? '*' : ' ', buffer);
     if( (*range.first)->is_done() ) {
+      if( (*range.first)->download()->info()->up_rate()->rate() != 0 ) {
+      m_canvas->set_attr(0, pos, m_canvas->width()-1, A_BOLD, 4);       // Finished and uploading
+      } else {
       m_canvas->set_attr(0, pos, m_canvas->width()-1, A_NORMAL, 4);     // Finished
+      }
     } else if( (*range.first)->is_active() ) {
       if( (*range.first)->download()->info()->down_rate()->rate() != 0 ) {
-        m_canvas->set_attr(0, pos, m_canvas->width()-1, A_NORMAL, 3);   // Active
+        if( (*range.first)->download()->info()->up_rate()->rate() != 0 ) {
+          m_canvas->set_attr(0, pos, m_canvas->width()-1, A_BOLD, 3);     // Active and uploading
+        } else {
+          m_canvas->set_attr(0, pos, m_canvas->width()-1, A_NORMAL, 3);   // Active
+        }
       } else {
-        m_canvas->set_attr(0, pos, m_canvas->width()-1, A_NORMAL, 2);   // Dead
+        if( (*range.first)->download()->info()->up_rate()->rate() != 0 ) {
+          m_canvas->set_attr(0, pos, m_canvas->width()-1, A_BOLD, 2);     // Dead but still uploading
+        } else {
+          m_canvas->set_attr(0, pos, m_canvas->width()-1, A_NORMAL, 2);   // Dead
+        }
       }
     } else {
       m_canvas->set_attr(0, pos, m_canvas->width()-1, A_NORMAL, 1);     // Inactive
