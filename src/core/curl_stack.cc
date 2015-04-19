@@ -51,10 +51,11 @@ CurlStack::CurlStack() :
   m_handle((void*)curl_multi_init()),
   m_active(0),
   m_maxActive(32),
+  m_ssl_verify_host(true),
   m_ssl_verify_peer(true),
   m_dns_timeout(60) {
 
-  m_taskTimeout.slot() = std::tr1::bind(&CurlStack::receive_timeout, this);
+  m_taskTimeout.slot() = std::bind(&CurlStack::receive_timeout, this);
 
 #if (LIBCURL_VERSION_NUM >= 0x071000)
   curl_multi_setopt((CURLM*)m_handle, CURLMOPT_TIMERDATA, this);
@@ -180,7 +181,8 @@ CurlStack::add_get(CurlGet* get) {
   if (!m_httpCaCert.empty())
     curl_easy_setopt(get->handle(), CURLOPT_CAINFO, m_httpCaCert.c_str());
 
-  curl_easy_setopt(get->handle(), CURLOPT_SSL_VERIFYPEER, (long)m_ssl_verify_peer); 
+  curl_easy_setopt(get->handle(), CURLOPT_SSL_VERIFYHOST, (long)(m_ssl_verify_host ? 2 : 0));
+  curl_easy_setopt(get->handle(), CURLOPT_SSL_VERIFYPEER, (long)(m_ssl_verify_peer ? 1 : 0));
   curl_easy_setopt(get->handle(), CURLOPT_DNS_CACHE_TIMEOUT, m_dns_timeout);
 
   base_type::push_back(get);

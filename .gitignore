@@ -32,6 +32,8 @@ libtool
 ltmain.sh
 missing
 stamp-h1
+
+src/rtorrent
 scripts/libtool.m4
 scripts/lt*.m4
 
@@ -56,6 +58,7 @@ scripts/lt*.m4
 # OS generated files #
 ######################
 .DS_Store?
+.dirstamp
 ehthumbs.db
 Icon?
 Thumbs.db
