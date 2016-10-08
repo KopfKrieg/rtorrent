@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -79,6 +79,15 @@ apply_pieces_stats_total_size() {
 }
 
 torrent::Object
+system_env(const torrent::Object::string_type& arg) {
+  if (arg.empty())
+    throw torrent::input_error("system.env: Missing variable name.");
+
+  char* val = getenv(arg.c_str());
+  return std::string(val ? val : "");
+}
+
+torrent::Object
 system_hostname() {
   char buffer[1024];
 
@@ -126,7 +135,7 @@ check_name(const std::string& str) {
     throw torrent::input_error("Non-alphanumeric characters found.");
 
   return str;
-}  
+}
 
 torrent::Object
 group_insert(const torrent::Object::list_type& args) {
@@ -149,7 +158,7 @@ group_insert(const torrent::Object::list_type& args) {
 
   if (rpc::call_command_value("method.use_intermediate") == 1) {
     // Deprecated in 0.7.0:
-    
+
     CMD2_REDIRECT_GENERIC_STR("group." + name + ".view",          "group2." + name + ".view");
     CMD2_REDIRECT_GENERIC_STR("group." + name + ".view.set",      "group2." + name + ".view.set");
     CMD2_REDIRECT_GENERIC_STR("group." + name + ".ratio.min",     "group2." + name + ".ratio.min");
@@ -161,7 +170,7 @@ group_insert(const torrent::Object::list_type& args) {
 
   } if (rpc::call_command_value("method.use_intermediate") == 2) {
     // Deprecated in 0.7.0:
-    
+
     CMD2_REDIRECT_GENERIC_STR_NO_EXPORT("group." + name + ".view",          "group2." + name + ".view");
     CMD2_REDIRECT_GENERIC_STR_NO_EXPORT("group." + name + ".view.set",      "group2." + name + ".view.set");
     CMD2_REDIRECT_GENERIC_STR_NO_EXPORT("group." + name + ".ratio.min",     "group2." + name + ".ratio.min");
@@ -206,9 +215,9 @@ torrent::Object
 cmd_file_append(const torrent::Object::list_type& args) {
   if (args.empty())
     throw torrent::input_error("Invalid number of arguments.");
-  
+
   FILE* output = fopen(args.front().as_string().c_str(), "a");
-  
+
   if (output == NULL)
     throw torrent::input_error("Could not append to file '" + args.front().as_string() + "': " + rak::error_number::current().c_str());
 
@@ -221,10 +230,10 @@ cmd_file_append(const torrent::Object::list_type& args) {
 
 void
 initialize_command_local() {
-  torrent::ChunkManager* chunkManager = torrent::chunk_manager();
-  torrent::FileManager*  fileManager = torrent::file_manager();
   core::DownloadList*    dList = control->core()->download_list();
   core::DownloadStore*   dStore = control->core()->download_store();
+  torrent::ChunkManager* chunkManager = torrent::chunk_manager();
+  torrent::FileManager*  fileManager = torrent::file_manager();
 
   CMD2_ANY         ("system.hostname", std::bind(&system_hostname));
   CMD2_ANY         ("system.pid",      std::bind(&getpid));
@@ -233,7 +242,7 @@ initialize_command_local() {
   CMD2_VAR_C_STRING("system.client_version",        PACKAGE_VERSION);
   CMD2_VAR_C_STRING("system.library_version",       torrent::version());
   CMD2_VAR_VALUE   ("system.file.allocate",         0);
-  CMD2_VAR_VALUE   ("system.file.max_size",         (int64_t)128 << 30);
+  CMD2_VAR_VALUE   ("system.file.max_size",         (int64_t)512 << 30);
   CMD2_VAR_VALUE   ("system.file.split_size",       -1);
   CMD2_VAR_STRING  ("system.file.split_suffix",     ".part");
 
@@ -249,11 +258,19 @@ initialize_command_local() {
   CMD2_ANY         ("system.files.closed_counter",     std::bind(&FM_t::files_closed_counter, fileManager));
   CMD2_ANY         ("system.files.failed_counter",     std::bind(&FM_t::files_failed_counter, fileManager));
 
+  CMD2_ANY_STRING  ("system.env",                      std::bind(&system_env, std::placeholders::_2));
+
   CMD2_ANY         ("system.time",                     std::bind(&rak::timer::seconds, &cachedTime));
   CMD2_ANY         ("system.time_seconds",             std::bind(&rak::timer::current_seconds));
   CMD2_ANY         ("system.time_usec",                std::bind(&rak::timer::current_usec));
 
   CMD2_ANY_VALUE_V ("system.umask.set",                std::bind(&umask, std::placeholders::_2));
+
+  CMD2_VAR_BOOL    ("system.daemon",                   false);
+
+  CMD2_ANY_V       ("system.shutdown.normal",          std::bind(&Control::receive_normal_shutdown, control));
+  CMD2_ANY_V       ("system.shutdown.quick",           std::bind(&Control::receive_quick_shutdown, control));
+  CMD2_REDIRECT_GENERIC_NO_EXPORT("system.shutdown", "system.shutdown.normal");
 
   CMD2_ANY         ("system.cwd",                      std::bind(&system_get_cwd));
   CMD2_ANY_STRING  ("system.cwd.set",                  std::bind(&system_set_cwd, std::placeholders::_2));
