@@ -82,7 +82,7 @@ CurlGet::start() {
 
     // Normally libcurl should handle the timeout. But sometimes that doesn't
     // work right so we do a fallback timeout that just aborts the transfer.
-    m_taskTimeout.slot() = std::tr1::bind(&CurlGet::receive_timeout, this);
+    m_taskTimeout.slot() = std::bind(&CurlGet::receive_timeout, this);
     priority_queue_erase(&taskScheduler, &m_taskTimeout);
     priority_queue_insert(&taskScheduler, &m_taskTimeout, cachedTime + rak::timer::from_seconds(m_timeout + 5));
   }
@@ -91,8 +91,12 @@ CurlGet::start() {
   curl_easy_setopt(m_handle, CURLOPT_NOSIGNAL,       (long)1);
   curl_easy_setopt(m_handle, CURLOPT_FOLLOWLOCATION, (long)1);
   curl_easy_setopt(m_handle, CURLOPT_MAXREDIRS,      (long)5);
-  curl_easy_setopt(m_handle, CURLOPT_IPRESOLVE,      CURL_IPRESOLVE_V4);
+
+  curl_easy_setopt(m_handle, CURLOPT_IPRESOLVE,      CURL_IPRESOLVE_WHATEVER);
+
   curl_easy_setopt(m_handle, CURLOPT_ENCODING,       "");
+
+  m_ipv6 = false;
 
   m_stack->add_get(this);
 }
@@ -108,6 +112,17 @@ CurlGet::close() {
   curl_easy_cleanup(m_handle);
 
   m_handle = NULL;
+}
+
+void
+CurlGet::retry_ipv6() {
+  CURL* nhandle = curl_easy_duphandle(m_handle);
+
+  curl_easy_setopt(nhandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
+  curl_easy_cleanup(m_handle);
+
+  m_handle = nhandle;
+  m_ipv6 = true;
 }
 
 void

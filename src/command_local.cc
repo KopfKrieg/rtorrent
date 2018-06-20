@@ -5,12 +5,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -79,6 +79,18 @@ apply_pieces_stats_total_size() {
 }
 
 torrent::Object
+<<<<<<< HEAD
+=======
+system_env(const torrent::Object::string_type& arg) {
+  if (arg.empty())
+    throw torrent::input_error("system.env: Missing variable name.");
+
+  char* val = getenv(arg.c_str());
+  return std::string(val ? val : "");
+}
+
+torrent::Object
+>>>>>>> 327164f
 system_hostname() {
   char buffer[1024];
 
@@ -126,7 +138,7 @@ check_name(const std::string& str) {
     throw torrent::input_error("Non-alphanumeric characters found.");
 
   return str;
-}  
+}
 
 torrent::Object
 group_insert(const torrent::Object::list_type& args) {
@@ -149,7 +161,7 @@ group_insert(const torrent::Object::list_type& args) {
 
   if (rpc::call_command_value("method.use_intermediate") == 1) {
     // Deprecated in 0.7.0:
-    
+
     CMD2_REDIRECT_GENERIC_STR("group." + name + ".view",          "group2." + name + ".view");
     CMD2_REDIRECT_GENERIC_STR("group." + name + ".view.set",      "group2." + name + ".view.set");
     CMD2_REDIRECT_GENERIC_STR("group." + name + ".ratio.min",     "group2." + name + ".ratio.min");
@@ -161,7 +173,7 @@ group_insert(const torrent::Object::list_type& args) {
 
   } if (rpc::call_command_value("method.use_intermediate") == 2) {
     // Deprecated in 0.7.0:
-    
+
     CMD2_REDIRECT_GENERIC_STR_NO_EXPORT("group." + name + ".view",          "group2." + name + ".view");
     CMD2_REDIRECT_GENERIC_STR_NO_EXPORT("group." + name + ".view.set",      "group2." + name + ".view.set");
     CMD2_REDIRECT_GENERIC_STR_NO_EXPORT("group." + name + ".ratio.min",     "group2." + name + ".ratio.min");
@@ -206,9 +218,9 @@ torrent::Object
 cmd_file_append(const torrent::Object::list_type& args) {
   if (args.empty())
     throw torrent::input_error("Invalid number of arguments.");
-  
+
   FILE* output = fopen(args.front().as_string().c_str(), "a");
-  
+
   if (output == NULL)
     throw torrent::input_error("Could not append to file '" + args.front().as_string() + "': " + rak::error_number::current().c_str());
 
@@ -221,70 +233,84 @@ cmd_file_append(const torrent::Object::list_type& args) {
 
 void
 initialize_command_local() {
-  torrent::ChunkManager* chunkManager = torrent::chunk_manager();
-  torrent::FileManager*  fileManager = torrent::file_manager();
   core::DownloadList*    dList = control->core()->download_list();
   core::DownloadStore*   dStore = control->core()->download_store();
+  torrent::ChunkManager* chunkManager = torrent::chunk_manager();
+  torrent::FileManager*  fileManager = torrent::file_manager();
 
-  CMD2_ANY         ("system.hostname", tr1::bind(&system_hostname));
-  CMD2_ANY         ("system.pid",      tr1::bind(&getpid));
+  CMD2_ANY         ("system.hostname", std::bind(&system_hostname));
+  CMD2_ANY         ("system.pid",      std::bind(&getpid));
 
   CMD2_VAR_C_STRING("system.api_version",           (int64_t)API_VERSION);
   CMD2_VAR_C_STRING("system.client_version",        PACKAGE_VERSION);
   CMD2_VAR_C_STRING("system.library_version",       torrent::version());
   CMD2_VAR_VALUE   ("system.file.allocate",         0);
-  CMD2_VAR_VALUE   ("system.file.max_size",         (int64_t)128 << 30);
+  CMD2_VAR_VALUE   ("system.file.max_size",         (int64_t)512 << 30);
   CMD2_VAR_VALUE   ("system.file.split_size",       -1);
   CMD2_VAR_STRING  ("system.file.split_suffix",     ".part");
 
+<<<<<<< HEAD
   CMD2_ANY         ("system.file_status_cache.size",   tr1::bind(&utils::FileStatusCache::size,
                                                                  (utils::FileStatusCache::base_type*)control->core()->file_status_cache()));
   CMD2_ANY_V       ("system.file_status_cache.prune",  tr1::bind(&utils::FileStatusCache::prune, control->core()->file_status_cache()));
+=======
+  CMD2_ANY         ("system.file_status_cache.size",   std::bind(&utils::FileStatusCache::size,
+                                                                 (utils::FileStatusCache::base_type*)control->core()->file_status_cache()));
+  CMD2_ANY_V       ("system.file_status_cache.prune",  std::bind(&utils::FileStatusCache::prune, control->core()->file_status_cache()));
+>>>>>>> 327164f
 
   CMD2_VAR_BOOL    ("file.prioritize_toc",          0);
   CMD2_VAR_LIST    ("file.prioritize_toc.first");
   CMD2_VAR_LIST    ("file.prioritize_toc.last");
 
-  CMD2_ANY         ("system.files.opened_counter",     tr1::bind(&FM_t::files_opened_counter, fileManager));
-  CMD2_ANY         ("system.files.closed_counter",     tr1::bind(&FM_t::files_closed_counter, fileManager));
-  CMD2_ANY         ("system.files.failed_counter",     tr1::bind(&FM_t::files_failed_counter, fileManager));
+  CMD2_ANY         ("system.files.opened_counter",     std::bind(&FM_t::files_opened_counter, fileManager));
+  CMD2_ANY         ("system.files.closed_counter",     std::bind(&FM_t::files_closed_counter, fileManager));
+  CMD2_ANY         ("system.files.failed_counter",     std::bind(&FM_t::files_failed_counter, fileManager));
 
-  CMD2_ANY         ("system.time",                     tr1::bind(&rak::timer::seconds, &cachedTime));
-  CMD2_ANY         ("system.time_seconds",             tr1::bind(&rak::timer::current_seconds));
-  CMD2_ANY         ("system.time_usec",                tr1::bind(&rak::timer::current_usec));
+  CMD2_ANY_STRING  ("system.env",                      std::bind(&system_env, std::placeholders::_2));
 
-  CMD2_ANY_VALUE_V ("system.umask.set",                tr1::bind(&umask, tr1::placeholders::_2));
+  CMD2_ANY         ("system.time",                     std::bind(&rak::timer::seconds, &cachedTime));
+  CMD2_ANY         ("system.time_seconds",             std::bind(&rak::timer::current_seconds));
+  CMD2_ANY         ("system.time_usec",                std::bind(&rak::timer::current_usec));
 
-  CMD2_ANY         ("system.cwd",                      tr1::bind(&system_get_cwd));
-  CMD2_ANY_STRING  ("system.cwd.set",                  tr1::bind(&system_set_cwd, tr1::placeholders::_2));
+  CMD2_ANY_VALUE_V ("system.umask.set",                std::bind(&umask, std::placeholders::_2));
 
-  CMD2_ANY         ("pieces.sync.always_safe",         tr1::bind(&CM_t::safe_sync, chunkManager));
-  CMD2_ANY_VALUE_V ("pieces.sync.always_safe.set",     tr1::bind(&CM_t::set_safe_sync, chunkManager, tr1::placeholders::_2));
-  CMD2_ANY         ("pieces.sync.safe_free_diskspace", tr1::bind(&CM_t::safe_free_diskspace, chunkManager));
-  CMD2_ANY         ("pieces.sync.timeout",             tr1::bind(&CM_t::timeout_sync, chunkManager));
-  CMD2_ANY_VALUE_V ("pieces.sync.timeout.set",         tr1::bind(&CM_t::set_timeout_sync, chunkManager, tr1::placeholders::_2));
-  CMD2_ANY         ("pieces.sync.timeout_safe",        tr1::bind(&CM_t::timeout_safe_sync, chunkManager));
-  CMD2_ANY_VALUE_V ("pieces.sync.timeout_safe.set",    tr1::bind(&CM_t::set_timeout_safe_sync, chunkManager, tr1::placeholders::_2));
-  CMD2_ANY         ("pieces.sync.queue_size",          tr1::bind(&CM_t::sync_queue_size, chunkManager));
+  CMD2_VAR_BOOL    ("system.daemon",                   false);
 
-  CMD2_ANY         ("pieces.preload.type",             tr1::bind(&CM_t::preload_type, chunkManager));
-  CMD2_ANY_VALUE_V ("pieces.preload.type.set",         tr1::bind(&CM_t::set_preload_type, chunkManager, tr1::placeholders::_2));
-  CMD2_ANY         ("pieces.preload.min_size",         tr1::bind(&CM_t::preload_min_size, chunkManager));
-  CMD2_ANY_VALUE_V ("pieces.preload.min_size.set",     tr1::bind(&CM_t::set_preload_min_size, chunkManager, tr1::placeholders::_2));
-  CMD2_ANY         ("pieces.preload.min_rate",         tr1::bind(&CM_t::preload_required_rate, chunkManager));
-  CMD2_ANY_VALUE_V ("pieces.preload.min_rate.set",     tr1::bind(&CM_t::set_preload_required_rate, chunkManager, tr1::placeholders::_2));
+  CMD2_ANY_V       ("system.shutdown.normal",          std::bind(&Control::receive_normal_shutdown, control));
+  CMD2_ANY_V       ("system.shutdown.quick",           std::bind(&Control::receive_quick_shutdown, control));
+  CMD2_REDIRECT_GENERIC_NO_EXPORT("system.shutdown", "system.shutdown.normal");
 
-  CMD2_ANY         ("pieces.memory.current",           tr1::bind(&CM_t::memory_usage, chunkManager));
-  CMD2_ANY         ("pieces.memory.sync_queue",        tr1::bind(&CM_t::sync_queue_memory_usage, chunkManager));
-  CMD2_ANY         ("pieces.memory.block_count",       tr1::bind(&CM_t::memory_block_count, chunkManager));
-  CMD2_ANY         ("pieces.memory.max",               tr1::bind(&CM_t::max_memory_usage, chunkManager));
-  CMD2_ANY_VALUE_V ("pieces.memory.max.set",           tr1::bind(&CM_t::set_max_memory_usage, chunkManager, tr1::placeholders::_2));
-  CMD2_ANY         ("pieces.stats_preloaded",          tr1::bind(&CM_t::stats_preloaded, chunkManager));
-  CMD2_ANY         ("pieces.stats_not_preloaded",      tr1::bind(&CM_t::stats_not_preloaded, chunkManager));
+  CMD2_ANY         ("system.cwd",                      std::bind(&system_get_cwd));
+  CMD2_ANY_STRING  ("system.cwd.set",                  std::bind(&system_set_cwd, std::placeholders::_2));
 
-  CMD2_ANY         ("pieces.stats.total_size",         tr1::bind(&apply_pieces_stats_total_size));
+  CMD2_ANY         ("pieces.sync.always_safe",         std::bind(&CM_t::safe_sync, chunkManager));
+  CMD2_ANY_VALUE_V ("pieces.sync.always_safe.set",     std::bind(&CM_t::set_safe_sync, chunkManager, std::placeholders::_2));
+  CMD2_ANY         ("pieces.sync.safe_free_diskspace", std::bind(&CM_t::safe_free_diskspace, chunkManager));
+  CMD2_ANY         ("pieces.sync.timeout",             std::bind(&CM_t::timeout_sync, chunkManager));
+  CMD2_ANY_VALUE_V ("pieces.sync.timeout.set",         std::bind(&CM_t::set_timeout_sync, chunkManager, std::placeholders::_2));
+  CMD2_ANY         ("pieces.sync.timeout_safe",        std::bind(&CM_t::timeout_safe_sync, chunkManager));
+  CMD2_ANY_VALUE_V ("pieces.sync.timeout_safe.set",    std::bind(&CM_t::set_timeout_safe_sync, chunkManager, std::placeholders::_2));
+  CMD2_ANY         ("pieces.sync.queue_size",          std::bind(&CM_t::sync_queue_size, chunkManager));
 
-  CMD2_ANY         ("pieces.hash.queue_size",          tr1::bind(&torrent::hash_queue_size));
+  CMD2_ANY         ("pieces.preload.type",             std::bind(&CM_t::preload_type, chunkManager));
+  CMD2_ANY_VALUE_V ("pieces.preload.type.set",         std::bind(&CM_t::set_preload_type, chunkManager, std::placeholders::_2));
+  CMD2_ANY         ("pieces.preload.min_size",         std::bind(&CM_t::preload_min_size, chunkManager));
+  CMD2_ANY_VALUE_V ("pieces.preload.min_size.set",     std::bind(&CM_t::set_preload_min_size, chunkManager, std::placeholders::_2));
+  CMD2_ANY         ("pieces.preload.min_rate",         std::bind(&CM_t::preload_required_rate, chunkManager));
+  CMD2_ANY_VALUE_V ("pieces.preload.min_rate.set",     std::bind(&CM_t::set_preload_required_rate, chunkManager, std::placeholders::_2));
+
+  CMD2_ANY         ("pieces.memory.current",           std::bind(&CM_t::memory_usage, chunkManager));
+  CMD2_ANY         ("pieces.memory.sync_queue",        std::bind(&CM_t::sync_queue_memory_usage, chunkManager));
+  CMD2_ANY         ("pieces.memory.block_count",       std::bind(&CM_t::memory_block_count, chunkManager));
+  CMD2_ANY         ("pieces.memory.max",               std::bind(&CM_t::max_memory_usage, chunkManager));
+  CMD2_ANY_VALUE_V ("pieces.memory.max.set",           std::bind(&CM_t::set_max_memory_usage, chunkManager, std::placeholders::_2));
+  CMD2_ANY         ("pieces.stats_preloaded",          std::bind(&CM_t::stats_preloaded, chunkManager));
+  CMD2_ANY         ("pieces.stats_not_preloaded",      std::bind(&CM_t::stats_not_preloaded, chunkManager));
+
+  CMD2_ANY         ("pieces.stats.total_size",         std::bind(&apply_pieces_stats_total_size));
+
+  CMD2_ANY         ("pieces.hash.queue_size",          std::bind(&torrent::hash_queue_size));
   CMD2_VAR_BOOL    ("pieces.hash.on_completion",       true);
 
   CMD2_VAR_STRING  ("directory.default",       "./");
@@ -293,13 +319,13 @@ initialize_command_local() {
   CMD2_VAR_BOOL    ("session.use_lock",        true);
   CMD2_VAR_BOOL    ("session.on_completion",   true);
 
-  CMD2_ANY         ("session.path",            tr1::bind(&core::DownloadStore::path, dStore));
-  CMD2_ANY_STRING_V("session.path.set",        tr1::bind(&core::DownloadStore::set_path, dStore, tr1::placeholders::_2));
+  CMD2_ANY         ("session.path",            std::bind(&core::DownloadStore::path, dStore));
+  CMD2_ANY_STRING_V("session.path.set",        std::bind(&core::DownloadStore::set_path, dStore, std::placeholders::_2));
 
-  CMD2_ANY_V       ("session.save",            tr1::bind(&core::DownloadList::session_save, dList));
+  CMD2_ANY_V       ("session.save",            std::bind(&core::DownloadList::session_save, dList));
 
 #define CMD2_EXECUTE(key, flags)                                         \
-  CMD2_ANY(key, tr1::bind(&rpc::ExecFile::execute_object, &rpc::execFile, tr1::placeholders::_2, flags));
+  CMD2_ANY(key, std::bind(&rpc::ExecFile::execute_object, &rpc::execFile, std::placeholders::_2, flags));
 
   CMD2_EXECUTE     ("execute2",                rpc::ExecFile::flag_expand_tilde | rpc::ExecFile::flag_throw);
   CMD2_EXECUTE     ("execute.throw",           rpc::ExecFile::flag_expand_tilde | rpc::ExecFile::flag_throw);
@@ -313,17 +339,17 @@ initialize_command_local() {
   CMD2_EXECUTE     ("execute.capture",         rpc::ExecFile::flag_throw | rpc::ExecFile::flag_expand_tilde | rpc::ExecFile::flag_capture);
   CMD2_EXECUTE     ("execute.capture_nothrow", rpc::ExecFile::flag_expand_tilde | rpc::ExecFile::flag_capture);
 
-  CMD2_ANY_LIST    ("file.append",    tr1::bind(&cmd_file_append, tr1::placeholders::_2));
+  CMD2_ANY_LIST    ("file.append",    std::bind(&cmd_file_append, std::placeholders::_2));
 
   // TODO: Convert to new command types:
   *rpc::command_base::argument(0) = "placeholder.0";
   *rpc::command_base::argument(1) = "placeholder.1";
   *rpc::command_base::argument(2) = "placeholder.2";
   *rpc::command_base::argument(3) = "placeholder.3";
-  CMD2_ANY_P("argument.0", tr1::bind(&rpc::command_base::argument_ref, 0));
-  CMD2_ANY_P("argument.1", tr1::bind(&rpc::command_base::argument_ref, 1));
-  CMD2_ANY_P("argument.2", tr1::bind(&rpc::command_base::argument_ref, 2));
-  CMD2_ANY_P("argument.3", tr1::bind(&rpc::command_base::argument_ref, 3));
+  CMD2_ANY_P("argument.0", std::bind(&rpc::command_base::argument_ref, 0));
+  CMD2_ANY_P("argument.1", std::bind(&rpc::command_base::argument_ref, 1));
+  CMD2_ANY_P("argument.2", std::bind(&rpc::command_base::argument_ref, 2));
+  CMD2_ANY_P("argument.3", std::bind(&rpc::command_base::argument_ref, 3));
 
-  CMD2_ANY_LIST  ("group.insert", tr1::bind(&group_insert, tr1::placeholders::_2));
+  CMD2_ANY_LIST  ("group.insert", std::bind(&group_insert, std::placeholders::_2));
 }

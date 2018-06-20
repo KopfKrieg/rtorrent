@@ -177,7 +177,7 @@ View::initialize(const std::string& name) {
   m_focus = 0;
 
   set_last_changed(rak::timer());
-  m_delayChanged.slot() = std::tr1::bind(&View::emit_changed_now, this);
+  m_delayChanged.slot() = std::bind(&View::emit_changed_now, this);
 }
 
 void
@@ -257,6 +257,10 @@ View::sort() {
 
 void
 View::filter() {
+  // Do NOT allow filter STARTED and STOPPED views: they are special
+  if (m_name == "started" || m_name == "stopped")
+    return;
+
   // Parition the list in two steps so we know which elements changed.
   iterator splitVisible  = std::stable_partition(begin_visible(),  end_visible(),  view_downloads_filter(m_filter));
   iterator splitFiltered = std::stable_partition(begin_filtered(), end_filtered(), view_downloads_filter(m_filter));
@@ -282,11 +286,11 @@ View::filter() {
   // perhaps always clear them, thus not throwing anything.
   if (!m_event_removed.is_empty())
     std::for_each(changed.begin(), splitChanged,
-                  tr1::bind(&rpc::call_object_d_nothrow, m_event_removed, tr1::placeholders::_1));
+                  std::bind(&rpc::call_object_d_nothrow, m_event_removed, std::placeholders::_1));
 
   if (!m_event_added.is_empty())
     std::for_each(changed.begin(), splitChanged,
-                  tr1::bind(&rpc::call_object_d_nothrow, m_event_added, tr1::placeholders::_1));
+                  std::bind(&rpc::call_object_d_nothrow, m_event_added, std::placeholders::_1));
 
   emit_changed();
 }
